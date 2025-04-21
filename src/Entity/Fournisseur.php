@@ -34,7 +34,10 @@ class Fournisseur
     {
         $this->commandes = new ArrayCollection();
     }
-
+    public function __toString(): string
+    {
+        return $this->getNom() ?? '$Fournisseur #' . ($this->getId() ?? 'nouveau');
+    }
     // Getters et setters...
     public function getId(): ?int
     {

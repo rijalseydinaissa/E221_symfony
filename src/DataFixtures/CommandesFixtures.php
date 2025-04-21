@@ -5,14 +5,18 @@ use App\Entity\Commande;
 use App\Entity\CommandeProduit;
 use App\Entity\Produit;
 use App\Entity\Fournisseur;
+use App\Entity\Versement;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
+use Doctrine\Common\Collections\ArrayCollection;
 
 class CommandesFixtures extends Fixture implements DependentFixtureInterface
 {
-    public function load(ObjectManager $manager): void
-    {
+    // Dans CommandesFixtures.php
+public function load(ObjectManager $manager): void
+{
+    try {
         $statuses = [
             Commande::STATUT_EN_COURS,
             Commande::STATUT_LIVRE, 
@@ -20,13 +24,24 @@ class CommandesFixtures extends Fixture implements DependentFixtureInterface
             Commande::STATUT_ANNULE
         ];
 
+        // Votre code existant...
+        
         for ($i = 1; $i <= 20; $i++) {
-            $order = new Commande();
-            $order->setFournisseur($this->getReference('supplier_'.rand(1, 5), Fournisseur::class))
-                  ->setDate(new \DateTime('-'.rand(0, 30).' days'))
-                  ->setDateLivraisonPrevue(new \DateTime('+'.rand(1, 15).' days'))
-                  ->setStatut($statuses[array_rand($statuses)]);
+            echo "Création commande $i\n";
             
+            $order = new Commande();
+    
+
+            // Créez les dates avant de les utiliser
+            $date = new \DateTime('2025-04-21');
+            $dateLivraison = new \DateTime('2025-04-21');
+
+            $order->setFournisseur($this->getReference('supplier_'.rand(1, 5), Fournisseur::class))
+                  ->setDate($date)
+                  ->setDateLivraisonPrevue($dateLivraison )
+                  ->setStatut($statuses[array_rand($statuses)]);
+            // $order->setVersements(new ArrayCollection());
+            echo "Ajout des produits pour commande $i\n";
             // Ajout de produits à la commande
             $total = 0;
             for ($j = 1; $j <= rand(1, 5); $j++) {
@@ -43,12 +58,22 @@ class CommandesFixtures extends Fixture implements DependentFixtureInterface
             $order->setMontant($total);
             $manager->persist($order);
             
+            echo "Référence pour commande $i ajoutée\n";
             // Ajouter une référence pour chaque commande
             $this->addReference('order_'.$i, $order);
         }
-
+        
+        echo "Flush du manager\n";
         $manager->flush();
+        echo "Fixtures chargées avec succès\n";
+        
+    } catch (\Exception $e) {
+        echo "Erreur: " . $e->getMessage() . "\n";
+        echo "File: " . $e->getFile() . " line " . $e->getLine() . "\n";
+        echo "Trace: " . $e->getTraceAsString() . "\n";
+        throw $e;
     }
+}
 
     public function getDependencies():array
     {

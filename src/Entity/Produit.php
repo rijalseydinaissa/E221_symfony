@@ -40,6 +40,11 @@ class Produit
     #[ORM\OneToMany(mappedBy: 'produit', targetEntity: CommandeProduit::class)]
     private Collection $commandeProduits;
 
+    public function __toString(): string
+    {
+        return $this->getCode() ?? 'Produit #' . ($this->getId() ?? 'nouveau');
+    }
+
     // Getters et setters...
     public function getId(): ?int
     {

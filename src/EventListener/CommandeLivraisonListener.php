@@ -17,7 +17,7 @@ class CommandeLivraisonListener
 
     public function preUpdate(Commande $commande, LifecycleEventArgs $event)
     {
-        $changeSet = $event->getEntityManager()->getUnitOfWork()->getEntityChangeSet($commande);
+        $changeSet = $event->getObjectManager()->getUnitOfWork()->getEntityChangeSet($commande);
         
         if (isset($changeSet['dateLivraisonReelle'])) {
             // La date de livraison réelle a été mise à jour

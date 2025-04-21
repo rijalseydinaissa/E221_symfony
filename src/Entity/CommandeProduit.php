@@ -13,11 +13,11 @@ class CommandeProduit
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'commandeProduits')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Commande::class, inversedBy: 'commandeProduits')]
+    #[ORM\JoinColumn(nullable: false, onDelete: "CASCADE")]
     private Commande $commande;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(targetEntity: Produit::class)]
     #[ORM\JoinColumn(nullable: false)]
     private Produit $produit;
 
@@ -26,6 +26,11 @@ class CommandeProduit
 
     #[ORM\Column]
     private float $prixAchat;
+
+    public function __toString(): string
+    {
+        return 'Produit en commande #' . ($this->id ?? 'nouveau') . ' - Qté: ' . $this->quantite;
+    }
 
     // Getters et setters...
     public function getId(): ?int

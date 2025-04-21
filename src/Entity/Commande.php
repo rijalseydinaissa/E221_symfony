@@ -52,6 +52,12 @@ class Commande
         $this->commandeProduits = new ArrayCollection();
         $this->versements = new ArrayCollection();
         $this->date = new \DateTime();
+        $this->montant = 0.0;
+        $this->dateLivraisonPrevue = new \DateTime('+7 days');
+    }
+    public function __toString(): string
+    {
+        return 'Commande #' . ($this->id ?? 'nouvelle') . ' - ' . $this->date->format('Y-m-d');
     }
 
     // Getters et setters...

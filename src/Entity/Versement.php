@@ -16,8 +16,9 @@ class Versement
     #[ORM\Column(length: 50, unique: true)]
     private string $numero;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'datetime')]
     private \DateTimeInterface $date;
+
 
     #[ORM\Column]
     private float $montant;
@@ -30,6 +31,7 @@ class Versement
     {
         $this->date = new \DateTime();
     }
+
 
     // Getters et setters...
     public function getId(): ?int
