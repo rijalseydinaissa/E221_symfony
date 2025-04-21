@@ -43,6 +43,12 @@ class Categorie
         return $this->nom;
     }
 
+/*************  ✨ Windsurf Command ⭐  *************/
+/**
+ * Set the value of nom.
+ *
+ * @param string $nom The name to set.
+/*******  873d1447-9449-4211-8c4d-5447a219947a  *******/
     public function setNom(string $nom): self
     {
         $this->nom = $nom;

@@ -6,4 +6,4 @@ api_login:
 api:
     resource: ../src/Controller/
     type: attribute
-    # prefix: /api
+    prefix: /api

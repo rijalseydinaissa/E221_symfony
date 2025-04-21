@@ -17,7 +17,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final class SecurityController extends AbstractController
 {
-    #[Route('/api/login', name: 'api_login')]
+    #[Route('/login', name: 'api_login')]
     public function login(
         Request $request,
         JWTTokenManagerInterface $JWTManager,

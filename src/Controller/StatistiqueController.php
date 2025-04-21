@@ -14,7 +14,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_RESPONSABLE_PAIEMENT')]
 class StatistiqueController extends AbstractController
 {
-    #[Route('/', name: 'statistique_index', methods: ['GET'])]
+    #[Route('/all', name: 'statistique_index', methods: ['GET'])]
     public function index(
         CommandeRepository $commandeRepository,
         VersementRepository $versementRepository

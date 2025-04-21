@@ -16,7 +16,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_GESTIONNAIRE')]
 class SousCategorieController extends AbstractController
 {
-    #[Route('/', name: 'sous_categorie_index', methods: ['GET'])]
+    #[Route('/all', name: 'sous_categorie_index', methods: ['GET'])]
     public function index(SousCategorieRepository $sousCategorieRepository): Response
     {
         return $this->json([

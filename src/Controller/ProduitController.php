@@ -15,12 +15,20 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_GESTIONNAIRE')]
 class ProduitController extends AbstractController
 {
-    #[Route('/', name: 'produit_index', methods: ['GET'])]
+    #[Route('/all', name: 'produit_index', methods: ['GET'])]
     public function index(ProduitRepository $produitRepository): Response
     {
-        return $this->json([
-            'produits' => $produitRepository->findAll(),
-        ]);
+        $produits=$produitRepository->findAll();
+        $data=array_map( function( Produit $produit){
+            return [
+                'id'=>$produit->getId(),
+                'code'=>$produit->getCode(),
+                'designation'=>$produit->getDesignation(),
+                'quantite_stock'=>$produit->getQuantiteStock(),
+                'prix_unitaire'=>$produit->getPrixUnitaire(),
+            ];
+        },$produits);
+        return $this->json(['produits'=>$data]);
     }
 
     #[Route('/new', name: 'produit_new', methods: ['POST'])]
@@ -40,7 +48,13 @@ class ProduitController extends AbstractController
         $entityManager->persist($produit);
         $entityManager->flush();
 
-        return $this->json($produit, Response::HTTP_CREATED);
+        return $this->json([
+            'id'=>$produit->getId(),
+            'code'=>$produit->getCode(),
+            'designation'=>$produit->getDesignation(),
+            'quantite_stock'=>$produit->getQuantiteStock(),
+            'prix_unitaire'=>$produit->getPrixUnitaire(),
+        ], Response::HTTP_CREATED);
     }
 
     #[Route('/{id}/edit', name: 'produit_edit', methods: ['PUT'])]
@@ -58,7 +72,13 @@ class ProduitController extends AbstractController
         
         $entityManager->flush();
 
-        return $this->json($produit);
+        return $this->json([
+            'id'=>$produit->getId(),
+            'code'=>$produit->getCode(),
+            'designation'=>$produit->getDesignation(),
+            'quantite_stock'=>$produit->getQuantiteStock(),
+            'prix_unitaire'=>$produit->getPrixUnitaire(),
+        ]);
     }
 
     #[Route('/{id}', name: 'produit_delete', methods: ['DELETE'])]

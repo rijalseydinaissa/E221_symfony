@@ -16,14 +16,40 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_GESTIONNAIRE')]
 class FournisseurController extends AbstractController
 {
-    #[Route('/', name: 'fournisseur_index', methods: ['GET'])]
+    #[Route('/all', name: 'fournisseur_index', methods: ['GET'])]
     public function index(FournisseurRepository $fournisseurRepository): Response
     {
-        return $this->json([
-            'fournisseurs' => $fournisseurRepository->findAll(),
-        ]);
+        $fournisseurs=$fournisseurRepository->findAll();
+        $data=array_map( function(Fournisseur $fournisseur){
+            return [
+                'id'=>$fournisseur->getId(),
+                'nom'=>$fournisseur->getNom(),
+                'adresse'=>$fournisseur->getAdresse(),
+                'isArchived'=>$fournisseur->getIsArchived(),
+                'numero'=>$fournisseur->getNumero(),
+            ];
+        },$fournisseurs);  
+        return  $this->json(['fournisseurs'=>$data]);
     }
+    #[Route('/new', name: 'fournisseur', methods: ['POST'])]
+    public function new (Request $request, EntityManagerInterface $entityManager):Response{
+        $data=json_decode( $request->getContent(),true);
+        $fournisseur= new Fournisseur();
+        $fournisseur->setNom($data['nom']);
+        $fournisseur->setAdresse($data['adresse']);
+        $fournisseur->setNumero($data['numero']);
 
+        $entityManager->persist($fournisseur);
+        $entityManager->flush();
+        return $this->json([
+            'id'=>$fournisseur->getId(),
+            'nom'=>$fournisseur->getNom(),
+            'adresse'=>$fournisseur->getAdresse(),
+            'isArchived'=>$fournisseur->getIsArchived(),
+            'numero'=>$fournisseur->getNumero(),
+        ],Response::HTTP_CREATED);
+
+    }
     #[Route('/{id}/edit', name: 'fournisseur_edit', methods: ['PUT'])]
     public function edit(Request $request, Fournisseur $fournisseur, EntityManagerInterface $entityManager): Response
     {
@@ -32,12 +58,17 @@ class FournisseurController extends AbstractController
         $fournisseur->setNom($data['nom']);
         $fournisseur->setAdresse($data['adresse']);
         $fournisseur->setNumero($data['numero']);
-        $fournisseur->setIsArchived($data['is_archived']);
-        
+        $fournisseur->setIsArchived($data['isArchived']);
         $entityManager->persist($fournisseur);
         $entityManager->flush();
 
-        return $this->json($fournisseur);
+        return $this->json([
+            'id'=>$fournisseur->getId(),
+            'nom'=>$fournisseur->getNom(),
+            'adresse'=>$fournisseur->getAdresse(),
+            'isArchived'=>$fournisseur->getIsArchived(),
+            'numero'=>$fournisseur->getNumero(),
+        ]);
     }
 
     #[Route('/{id}', name: 'fournisseur_delete', methods: ['DELETE'])]

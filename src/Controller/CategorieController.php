@@ -16,12 +16,21 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_GESTIONNAIRE')]
 class CategorieController extends AbstractController
 {
-    #[Route('/', name: 'categorie_index', methods: ['GET'])]
+    #[Route('/all', name: 'categorie_index', methods: ['GET'])]
     public function index(CategorieRepository $categorieRepository): Response
     {
-        return $this->json([
-            'categories' => $categorieRepository->findAll(),
-        ]);
+        $categories = $categorieRepository->findAll();
+
+        $data = array_map(function (Categorie $categorie) {
+            return [
+                'id' => $categorie->getId(),
+                'nom' => $categorie->getNom(),
+                'description' => $categorie->getDescription(),
+                'isArchived' => $categorie->getIsArchived(),
+            ];
+        }, $categories);
+
+        return $this->json(['categories' => $data]);
     }
 
     #[Route('/new', name: 'categorie_new', methods: ['POST'])]
@@ -36,13 +45,23 @@ class CategorieController extends AbstractController
         $entityManager->persist($categorie);
         $entityManager->flush();
 
-        return $this->json($categorie, Response::HTTP_CREATED);
+        return $this->json([
+            'id' => $categorie->getId(),
+            'nom' => $categorie->getNom(),
+            'description' => $categorie->getDescription(),
+            'isArchived' => $categorie->getIsArchived(),
+        ], Response::HTTP_CREATED);
     }
 
     #[Route('/{id}', name: 'categorie_show', methods: ['GET'])]
     public function show(Categorie $categorie): Response
     {
-        return $this->json($categorie);
+        return $this->json([
+            'id' => $categorie->getId(),
+            'nom' => $categorie->getNom(),
+            'description' => $categorie->getDescription(),
+            'isArchived' => $categorie->getIsArchived(),
+        ]);
     }
 
     #[Route('/{id}/edit', name: 'categorie_edit', methods: ['PUT'])]
@@ -55,7 +74,12 @@ class CategorieController extends AbstractController
         
         $entityManager->flush();
 
-        return $this->json($categorie);
+        return $this->json([
+            'id' => $categorie->getId(),
+            'nom' => $categorie->getNom(),
+            'description' => $categorie->getDescription(),
+            'isArchived' => $categorie->getIsArchived(),
+        ]);
     }
 
     #[Route('/{id}', name: 'categorie_delete', methods: ['DELETE'])]
