@@ -1,0 +1,9 @@
+api_login:
+    path: /api/login
+    methods: POST
+    controller: App\Controller\SecurityController::login
+
+api:
+    resource: ../src/Controller/
+    type: attribute
+    # prefix: /api
