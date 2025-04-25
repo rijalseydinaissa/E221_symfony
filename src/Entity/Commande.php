@@ -10,7 +10,7 @@ use App\Validator\Constraints as AppAssert;
 
 #[ORM\Entity(repositoryClass: CommandeRepository::class)]
 #[AppAssert\CommandeStatutConstraint]
-class Commande
+class Commande  implements \JsonSerializable
 {
     const STATUT_EN_COURS = 'encours';
     const STATUT_LIVRE = 'livre';
@@ -158,5 +158,41 @@ class Commande
             }
         }
         return $this;
+    }
+    public function addVersement(Versement $versement): self
+    {
+        if (!$this->versements->contains($versement)) {
+            $this->versements->add($versement);
+            $versement->setCommande($this);
+        }
+        return $this;
+    }
+
+    public function removeVersement(Versement $versement): self
+    {
+        if ($this->versements->removeElement($versement)) {
+            // Si le versement est associé à cette commande, annuler l'association
+            if ($versement->getCommande() === $this) {
+                $versement->setCommande(null);
+            }
+        }
+        return $this;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->id,
+            'date' => $this->date->format('Y-m-d H:i:s'),
+            'montant' => $this->montant,
+            'date_livraison_prevue' => $this->dateLivraisonPrevue->format('Y-m-d H:i:s'),
+            'date_livraison_reelle' => $this->dateLivraisonReelle?->format('Y-m-d H:i:s'),
+            'statut' => $this->statut,
+            'fournisseur' => [
+                'id' => $this->fournisseur->getId(),
+                'nom' => $this->fournisseur->getNom()
+            ],
+            'montant_restant' => $this->getMontantRestant()
+        ];
     }
 }

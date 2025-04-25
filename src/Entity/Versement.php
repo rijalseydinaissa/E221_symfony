@@ -78,4 +78,14 @@ class Versement
     {
         return $this->numero;
     }
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->id,
+            'numero' => $this->numero,
+            'date' => $this->date->format('Y-m-d H:i:s'),
+            'montant' => $this->montant,
+            'commande_id' => $this->commande->getId()
+        ];
+    }
 }

@@ -16,21 +16,25 @@ class CommandeLivraisonListener
     }
 
     public function preUpdate(Commande $commande, LifecycleEventArgs $event)
-    {
-        $changeSet = $event->getObjectManager()->getUnitOfWork()->getEntityChangeSet($commande);
+{
+    $changeSet = $event->getObjectManager()->getUnitOfWork()->getEntityChangeSet($commande);
+    
+    if (isset($changeSet['dateLivraisonReelle'])) {
+        // La date de livraison réelle a été mise à jour
+        $oldValue = $changeSet['dateLivraisonReelle'][0];
+        $newValue = $changeSet['dateLivraisonReelle'][1];
         
-        if (isset($changeSet['dateLivraisonReelle'])) {
-            // La date de livraison réelle a été mise à jour
-            $oldValue = $changeSet['dateLivraisonReelle'][0];
-            $newValue = $changeSet['dateLivraisonReelle'][1];
+        if ($oldValue === null && $newValue !== null) {
+            // C'est une livraison (passage de null à une date)
+            $commande->setStatut(Commande::STATUT_LIVRE);
             
-            if ($oldValue === null && $newValue !== null) {
-                // C'est une livraison (passage de null à une date)
-                $commande->setStatut(Commande::STATUT_LIVRE);
-                
-                // Créer les paiements échelonnés
+            // Créer les paiements échelonnés
+            try {
                 $this->paiementService->creerPaiementsEchelonnes($commande);
+            } catch (\Exception $e) {
+                // Gérer l'erreur ou la logger
             }
         }
     }
+}
 }

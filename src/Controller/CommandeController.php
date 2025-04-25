@@ -18,7 +18,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_RESPONSABLE_ACHAT')]
 class CommandeController extends AbstractController
 {
-    #[Route('/', name: 'commande_index', methods: ['GET'])]
+    #[Route('/all', name: 'commande_index', methods: ['GET'])]
     public function index(CommandeRepository $commandeRepository): Response
     {
         return $this->json([
@@ -30,14 +30,26 @@ class CommandeController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $data = json_decode($request->getContent(), true);
-        
+        // Validation des données
+        if (!isset($data['date_livraison_prevue'])) {
+            return $this->json(['error' => 'La date de livraison prévue est requise'], 400);
+        }
+
+        try {
+            $dateLivraison = new \DateTime($data['date_livraison_prevue']);
+        } catch (\Exception $e) {
+            return $this->json(['error' => 'Format de date invalide'], 400);
+        }
         $commande = new Commande();
         $commande->setDate(new \DateTime());
         
         $fournisseur = $entityManager->getRepository(Fournisseur::class)->find($data['fournisseur_id']);
+        if (!$fournisseur) {
+            return $this->json(['error' => 'Fournisseur non trouvé'], Response::HTTP_NOT_FOUND);
+        }
+    
         $commande->setFournisseur($fournisseur);
-        
-        $commande->setDateLivraisonPrevue(new \DateTime($data['date_livraison_prevue']));
+        $commande->setDateLivraisonPrevue($dateLivraison);
         
         $montantTotal = 0;
         foreach ($data['produits'] as $produitData) {
@@ -59,7 +71,10 @@ class CommandeController extends AbstractController
         $entityManager->persist($commande);
         $entityManager->flush();
 
-        return $this->json($commande, Response::HTTP_CREATED);
+        return $this->json($commande, Response::HTTP_CREATED, [], [
+            'groups' => 'commande:read',
+            'datetime_format' => 'Y-m-d H:i:s'
+        ]);
     }
 
     #[Route('/{id}/annuler', name: 'commande_annuler', methods: ['PUT'])]

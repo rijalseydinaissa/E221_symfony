@@ -22,7 +22,9 @@ class PaiementService
         }
 
         $montantVersement = $commande->getMontant() / 3;
-        $dateLivraison = \DateTime::createFromInterface($commande->getDateLivraisonReelle());
+        
+        // Convertir DateTimeInterface en DateTime
+        $dateLivraison = new \DateTime($commande->getDateLivraisonReelle()->format('Y-m-d H:i:s'));
 
         for ($i = 0; $i < 3; $i++) {
             $versement = new Versement();
@@ -30,8 +32,9 @@ class PaiementService
             $versement->setMontant($montantVersement);
             $versement->setNumero('VERS-'.uniqid());
 
-            $datePaiement = clone $dateLivraison;
-            $datePaiement->modify('+'.($i * 5).' days');
+            // Créer une nouvelle instance de DateTime pour chaque versement
+            $datePaiement = new \DateTime($dateLivraison->format('Y-m-d H:i:s'));
+            $datePaiement->modify('+' . ($i * 5) . ' days');
             $versement->setDate($datePaiement);
 
             $this->entityManager->persist($versement);
